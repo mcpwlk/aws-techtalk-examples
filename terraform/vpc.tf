@@ -1,5 +1,5 @@
 resource "aws_vpc" "example" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = "${var.vpc_cidr}"
 }
 
 resource "aws_internet_gateway" "gw" {
@@ -17,8 +17,8 @@ resource "aws_default_route_table" "route_table" {
 
 resource "aws_subnet" "sub" {
   vpc_id            = "${aws_vpc.example.id}"
-  cidr_block        = "10.0.0.0/24"
-  availability_zone = "us-east-1a"
+  cidr_block        = "${var.subnet["cidr"]}"
+  availability_zone = "${var.subnet["az"]}"
 
   tags {
     Name = "Example subnet"
@@ -40,7 +40,7 @@ resource "aws_security_group" "external" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["12.34.56.78/32"]
+    cidr_blocks = "${var.ssh_access_cidrs}"
   }
 
   egress {
