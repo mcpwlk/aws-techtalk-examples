@@ -3,8 +3,8 @@ resource "aws_instance" "nginx" {
 
   ami                    = "${var.ami}"
   instance_type          = "${var.instance_type}"
-  subnet_id              = "${element(aws_subnet.sub.*.id, count.index)}"
-  vpc_security_group_ids = ["${aws_security_group.external.id}"]
+  subnet_id              = "${element(module.vpc.subnet_ids, count.index)}"
+  vpc_security_group_ids = ["${module.vpc.security_group_id}"]
 }
 
 resource "aws_eip" "nginx_eip" {
