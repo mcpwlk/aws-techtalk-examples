@@ -1,0 +1,36 @@
+{
+  "variables": {
+    "aws_region": "us-east-1",
+    "source_ami": "ami-0b425589c7bb7663d",
+    "source_os_version": "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-20180814"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "{{user `aws_region`}}",
+      "source_ami": "{{user `source_ami`}}",
+      "instance_type": "t2.micro",
+      "ssh_username": "ubuntu",
+      "ami_name": "Nginx default site server {{timestamp}}",
+      "tags": {
+        "Name": "Nginx default site server"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "sleep 30",
+        "sudo apt-get update",
+        "sudo apt-get install -y nginx cowsay"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "cowsay 'I like turtles.'"
+      ]
+    }
+  ]
+}
