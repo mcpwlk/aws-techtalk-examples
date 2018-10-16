@@ -16,12 +16,14 @@ resource "aws_default_route_table" "route_table" {
 }
 
 resource "aws_subnet" "sub" {
+  count = "${length(var.subnets)}"
+
   vpc_id            = "${aws_vpc.example.id}"
-  cidr_block        = "${var.subnet["cidr"]}"
-  availability_zone = "${var.subnet["az"]}"
+  cidr_block        = "${lookup(var.subnets[count.index], "cidr")}"
+  availability_zone = "${lookup(var.subnets[count.index], "az")}"
 
   tags {
-    Name = "Example subnet"
+    Name = "Example subnet ${count.index + 1}"
   }
 }
 
