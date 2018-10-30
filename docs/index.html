@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Terraform and Packer usage examples</title>
+    <link rel="stylesheet" type="text/css" href="demo.css" />
+    <link rel="stylesheet" type="text/css" href="asciinema-player.css" />
+</head>
+
+<body>
+<h1>Packer and Terraform usage examples</h1>
+
+    <p>
+    The purpose of the following code examples and demos is to introduce the
+    reader to the basic usage of
+    <a href="https://www.packer.io/intro/index.html">Packer</a> and
+    <a href="https://www.terraform.io/intro/index.html">Terraform</a>
+    by deploying an example, real (sort of, at least...) service in AWS.
+    </p>
+
+    <p>
+    The full, final Packer and Terraform configuration can be found
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples">here</a>.
+    In particular, note that some demos (the <i>*.cast</i> files available
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples/tree/master/docs">here</a>)
+    might be hard to watch in a browser due to the JS player limitations.
+    In which case, they can be downloaded and played with <a
+    href="https://github.com/asciinema/asciinema#quick-intro">asciinema offline player</a>.
+    </p>
+
+    <p>
+    The objective of the below demonstration is to deploy a service which will
+    serve nginx default page.
+    </p>
+
+    <ul>
+        <li><a href="#packer">Using Packer</a></li>
+        <li><a href="#terraform">Using Terraform</a></li>
+        <ul>
+            <li><a href="#terraform-1">Basic usage flow</a></li>
+            <ul>
+                <li><a href="#terraform-2">Destroying infra</a></li>
+            </ul>
+            <li><a href="#terraform-3">Deploying a service</a></li>
+            <ul>
+                <li><a href="#terraform-4">Basic infra</a></li>
+                <li><a href="#terraform-5">Adding EIP</a></li>
+                <li><a href="#terraform-6">Outputting values</a></li>
+                <li><a href="#terraform-7">Variables</a></li>
+                <li><a href="#terraform-8">Looping</a></li>
+                <li><a href="#terraform-9">Modularization</a></li>
+            </ul>
+        </ul>
+    </ul>
+
+<h2 id="packer">Using Packer</h2>
+
+    First, we build an AWS AMI, using Packer. We use an official Ubuntu AMI,
+    provided by Canonical, and install nginx in the provisioning step.
+
+    <p>
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples/blob/00-packer/packer/packer.json">Code.</a>
+    </p>
+
+    <p>
+    Demo:
+    <p>
+
+    <asciinema-player cols=105 rows=28 theme="tango" idle-time-limit=1 src="00-packer-execution.cast"></asciinema-player>
+
+<h2 id="terraform">Using Terraform</h2>
+
+    <p>
+    Before writing Terraform config for the actual service, let's get
+    acquainted with basic usage of the tool.
+    </p>
+
+<h3 id="terraform-1">Basic usage flow</h3>
+
+    <p>
+    A common flow for a user to introduce any changes into the
+    infrastructure managed by Terraform is to clone the config repository, make
+    the changes in the config, initialize Terraform, and run <i>plan</i> and
+    <i>apply</i>.
+    </p>
+
+    <p>
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples/tree/01-tf-basic-flow/terraform">Code.</a>
+    </p>
+
+    <p>
+    Demo:
+    <p>
+
+    <asciinema-player cols=105 rows=28 theme="tango" idle-time-limit=1 src="01-terraform-basic-usage.cast"></asciinema-player>
+
+<h4 id="terraform-2">Destroying infra</h4>
+
+    <p>
+    A slightly less common use case is to <i>destroy</i> either the whole
+    infrastructure or some of its elements.
+    </p>
+
+    <p>
+    Note that selective destruction is out of scope of these examples.
+    </p>
+
+    <p>
+    Demo:
+    <p>
+
+    <asciinema-player cols=105 rows=28 theme="tango" idle-time-limit=1 src="02-terraform-basic-destroy.cast"></asciinema-player>
+
+<h3 id="terraform-3">Deploying a service</h3>
+
+    <p>
+    Now, after getting acquainted with the basic usage, let's proceed with
+    preparing the nginx default page service.
+    </p>
+
+<h4 id="terraform-4">Basic infra</h4>
+
+    <p>
+    The new code contains the EC2 (the AWS virtual instance) definition as well
+    as entries for private network entities which will be used as the network
+    context for the new instance.
+    </p>
+
+    <p>
+    Note the multiple files in this example. Terraform collects and uses all
+    files in a current directory which end with <i>.tf</i>, which gives a
+    freedom in splitting up the service configuration.
+    </p>
+
+    <p>
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples/tree/02-tf-minimal-infra/terraform">Code.</a>
+    </p>
+
+    <p>
+    Demo:
+    <p>
+
+    <asciinema-player cols=105 rows=28 theme="tango" idle-time-limit=1 src="03-terraform-minimal-infra.cast"></asciinema-player>
+
+<h4 id="terraform-5">Adding EIP</h4>
+
+    <p>
+    Unfortunately, the infrastucture created in the previous step lacks any
+    public endpoint. Let's fix this by adding an EIP (AWS Elastic IP)
+    definition and reapplying.
+    </p>
+
+    <p>
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples/tree/03-tf-eip/terraform">Code.</a>
+    </p>
+
+    <p>
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples/compare/02-tf-minimal-infra...03-tf-eip">Comparison with previous version.</a>
+    </p>
+
+    <p>
+    Demo:
+    <p>
+
+    <asciinema-player cols=105 rows=28 theme="tango" idle-time-limit=1 src="04-terraform-add-eip.cast"></asciinema-player>
+
+<h4 id="terraform-6">Outputting values</h4>
+
+    <p>
+    The EIP has been created in the previous example, but we don't have any
+    immediate way of knowing it. As an alternative of logging in to AWS Console
+    to check what it is, we can add an output definition.
+    </p>
+
+    <p>
+    This time, the infrastructure doesn't change, so we just need to
+    <i>refresh</i> the Terraform state to obtain the IP.
+    </p>
+
+    <p>
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples/tree/04-tf-outputs/terraform">Code.</a>
+    </p>
+
+    <p>
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples/compare/03-tf-eip...04-tf-outputs">Comparison with previous version.</a>
+    </p>
+
+    <p>
+    Demo:
+    <p>
+
+    <asciinema-player cols=105 rows=28 theme="tango" idle-time-limit=1 src="05-terraform-output-eip.cast"></asciinema-player>
+
+<h4 id="terraform-7">Variables</h4>
+
+    <p>
+    Before the next step, which would be the introduction of multiple instances
+    of our nginx default page endpoints, we need to do some softcoding of the
+    values used in the config. Terraform provides <i>variable</i> config items
+    for this purpose.
+    </p>
+
+    <p>
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples/tree/05-tf-variables/terraform">Code.</a>
+    </p>
+
+    <p>
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples/compare/04-tf-outputs...05-tf-variables">Comparison with previous version.</a>
+    </p>
+
+    <p>
+    No demo, since functionally nothing changes.
+    </p>
+
+<h4 id="terraform-8">Looping</h4>
+
+    <p>
+    Now it's time for multiple nginx-default-page instances! Terraform allows
+    creating multiple instances of an object by providing <i>count</i>
+    metaparameter.
+    </p>
+
+    <p>
+    Note that lots of things are changing when running <i>apply</i>. Terraform
+    is able to detect that for instance the existing subnet doesn't have to be
+    recreated, however that's not the case with the existing instance, which is
+    created anew. This could be mitigated by manually adjusting the terraform
+    state, however that's out of scope of this demonstration.
+    </p>
+
+    <p>
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples/tree/06-tf-loops/terraform">Code.</a>
+    </p>
+
+    <p>
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples/compare/05-tf-variables...06-tf-loops">Comparison with previous version.</a>
+    </p>
+
+    <p>
+    Demo:
+    <p>
+
+    <asciinema-player cols=105 rows=28 theme="tango" idle-time-limit=1 src="06-terraform-looped-res.cast"></asciinema-player>
+
+<h4 id="terraform-9">Modularization</h4>
+
+    <p>
+    The last step is to modularize the network configuration, which can be then
+    reused for other, more serious services.
+    </p>
+
+    <p>
+    Superficially, a lot has changed since the last example, however note that
+    this is mostly due to moving <i>vpc.tf</i> to
+    <i>modules/basic-vpc/main.tf</i>. The biggest conceptual change is to
+    encapsulate the VPC objects and provide the input and output definitions
+    for the module (with <i>modules/basic-vpc/variables.tf</i> and
+    <i>modules/basic-vpc/outputs.tf</i>, respectively).
+    </p>
+
+    <p>
+    Unfortunately, Terraform will destroy and recreate almost everything in
+    this case. Again, in real life this could be prevented by tinkering with
+    the Terraform state.
+    </p>
+
+    <p>
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples/tree/07-tf-modules/terraform">Code.</a>
+    </p>
+
+    <p>
+    <a href="https://github.com/mcpwlk/aws-techtalk-examples/compare/06-tf-loops...07-tf-modules">Comparison with previous version.</a>
+    </p>
+
+    <p>
+    Demo:
+    <p>
+
+    <asciinema-player cols=105 rows=28 theme="tango" idle-time-limit=1 src="07-terraform-modules.cast"></asciinema-player>
+
+<script src="asciinema-player.js"></script>
+</body>
+</html>
