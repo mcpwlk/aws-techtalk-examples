@@ -1,5 +1,7 @@
 # Terraform and Packer examples from CodiLime AWS tech talk
 
+See https://mcpwlk.github.io/aws-techtalk-examples/ for the demo itself.
+
 Recordings in `docs` directory are replayable with
 [asciinema](https://asciinema.org/).
 
